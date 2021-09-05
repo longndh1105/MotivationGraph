@@ -1,0 +1,89 @@
+<html lang="Vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ đồ động lực</title>
+    <script>
+        window.onload = function() {
+            var data = JSON.parse('{{data|safe}}')
+            datapoints = []
+            var pre_y = 0
+            for (const d in data) {
+                datapoints.push({
+                    x: parseInt(d),
+                    y: data[d][0]
+                })
+                pre_y = data[d][0]
+            }
+            console.log(datapoints)
+            var chart = new CanvasJS.Chart("chartContainer", {
+                animationEnabled: false,
+                theme: "light2",
+                title: {
+                    text: "Sơ đồ động lực"
+                },
+                toolTip: {
+                    enabled: false //enable here
+                },
+                axisX: {
+                    minimum: 5,
+                    maximum: 22,
+                    labelFormatter: function(e) {
+                        console.log(e.value)
+                        for (const d in data) {
+                            console.log(d)
+                            if (e.value == d)
+                                return e.value + " tuổi";
+                        }
+                        return '';
+                    }
+                },
+                axisY: {
+                    maximum: 700,
+                    minimum: -700,
+                    stripLines: [{
+                        value: 0,
+                        thickness: 5
+                    }],
+                    labelFormatter: function(e) {
+                        console.log(e.value)
+                        if (e.value > 0) {
+                            return '+';
+                        } else if (e.value < 0) {
+                            return '-';
+                        } else
+                            return 0;
+                    }
+                },
+                data: [{
+                    type: "spline",
+                    indexLabelFontSize: 16,
+                    mouseover: mouseOver,
+                    dataPoints: datapoints
+                }]
+            });
+            chart.render();
+
+            function mouseOver(e) {
+                document.getElementById('contentofpointer').innerHTML = data[e.dataPoint.x][1]
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <form action="" method="POST">
+        {%csrf_token%}
+        <div>
+            <button type="submit" name="language_vi" disabled='true'>Vi</button>
+            <button type="submit" name="language_ja">Ja</button>
+        </div>
+    </form>
+    <div id="chartContainer" style="height: 600px; width: 75%; margin: auto;"></div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <div id='contentofpointer' style="margin: auto; text-align: center; margin-top: 1em; font-size:x-large; width: 50%;"></div>
+</body>
+
+</html>
